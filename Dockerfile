@@ -11,3 +11,6 @@ RUN pip install --no-cache-dir \
     jupyter
 
 CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+
+
+# requirements.txt

@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine
 import os
@@ -6,10 +7,15 @@ import os
 # 1. NETWORK MAPPING (Connection String)
 # ==========================================
 # We use "localhost" because we are running this on Windows, outside the container.
+
+from dotenv import load_dotenv
+env_path = Path(__file__).resolve().parents[1] / ".env"  # project root/.env
+load_dotenv(dotenv_path=env_path)
+
 DB_HOST = "localhost"
-DB_NAME = "mldb"
-DB_USER = "mluser"
-DB_PASS = "mlpass"
+DB_NAME = os.getenv("POSTGRES_DB")
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASS = os.getenv("POSTGRES_PASSWORD")
 DB_PORT = "5432"
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
