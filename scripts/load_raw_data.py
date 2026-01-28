@@ -1,6 +1,8 @@
 from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine, inspect
+from sqlalchemy import MetaData, Table
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 import os
 
 # ==========================================
@@ -47,7 +49,7 @@ column_map = {
     'Genres':      'genres',
     'Avg_Rating':  'avg_rating',
     'Num_Ratings': 'num_ratings_raw',  # Mapping "Num_Ratings" to "num_ratings_raw"
-    'URL':         'url'
+    'URL':         'url',
 }
 
 # Apply the mapping
@@ -62,17 +64,40 @@ df_final = df[expected_columns]
 # ==========================================
 try:
     inspector = inspect(engine)
-    if inspector.has_table('raw_data'):
-        print("ℹ️  SKIPPED: Table 'raw_data' already exists (ignore mode).")
-        raise SystemExit(0)
+    if not inspector.has_table('raw_data'):
+        print("❌ ERROR: Table 'raw_data' does not exist.")
+        raise SystemExit(1)
 
-    df_final.to_sql(
-        name='raw_data',     # Target SQL Table Name
-        con=engine,
-        if_exists='fail',    # Create table if missing; fail if it exists (we pre-check above)
-        index=False,         # We already have an 'id' column, so don't make a new index
-        chunksize=1000       # Upload 1000 rows at a time
-    )
-    print("✅ SUCCESS: Data successfully mapped and loaded into PostgreSQL!")
+    # Insert rows; ignore duplicates by primary key (id)
+    metadata = MetaData()
+    raw_table = Table('raw_data', metadata, autoload_with=engine)
+
+    table_cols = {c.name for c in raw_table.columns}
+    insert_cols = [c for c in df_final.columns if c in table_cols]
+    if 'id' not in insert_cols:
+        raise ValueError("Table 'raw_data' must have an 'id' column.")
+
+    inserted_total = 0
+    chunk_size = 1000
+    for start in range(0, len(df_final), chunk_size):
+        chunk = df_final.iloc[start:start + chunk_size][insert_cols]
+        rows = chunk.to_dict(orient='records')
+        if not rows:
+            continue
+
+        stmt = (
+            pg_insert(raw_table)
+            .values(rows)
+            .on_conflict_do_nothing(index_elements=['id'])
+        )
+
+        with engine.begin() as conn:
+            result = conn.execute(stmt)
+            if result.rowcount is not None:
+                inserted_total += result.rowcount
+    if inserted_total == 0:
+        print("⚠️ No new rows were inserted; all data may already exist in 'raw_data'.") 
+    else:
+        print(f"✅ SUCCESS: Loaded into 'raw_data' (inserted {inserted_total} new rows; duplicates ignored).")
 except Exception as e:
     print(f"❌ ERROR: {e}")
