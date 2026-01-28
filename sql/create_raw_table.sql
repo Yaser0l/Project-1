@@ -19,3 +19,4 @@ CREATE INDEX IF NOT EXISTS ix_raw_data_genres ON raw_data (genres);
 
 -- Get-Content sql\create_raw_table.sql | docker exec -i ml_postgres sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB'
 -- docker exec -i ml_postgres psql -U mluser -d mldb -f /sql/create_raw_table.sql
+-- these lines make docker execute create table command inside the container
