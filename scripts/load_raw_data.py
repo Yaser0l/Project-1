@@ -36,6 +36,8 @@ if not os.path.exists(csv_path):
 print(f"✅ Found file: {csv_path}")
 df = pd.read_csv(csv_path)
 
+df = df.where(pd.notnull(df), None)
+
 # ==========================================
 # 3. COLUMN MAPPING (Schema)
 # ==========================================
