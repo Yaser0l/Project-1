@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 import os
 
 # ==========================================
@@ -61,10 +61,15 @@ df_final = df[expected_columns]
 # 4. EXECUTION (Load Data)
 # ==========================================
 try:
+    inspector = inspect(engine)
+    if inspector.has_table('raw_data'):
+        print("ℹ️  SKIPPED: Table 'raw_data' already exists (ignore mode).")
+        raise SystemExit(0)
+
     df_final.to_sql(
         name='raw_data',     # Target SQL Table Name
         con=engine,
-        if_exists='append',  # Add to table, don't replace it
+        if_exists='fail',    # Create table if missing; fail if it exists (we pre-check above)
         index=False,         # We already have an 'id' column, so don't make a new index
         chunksize=1000       # Upload 1000 rows at a time
     )
