@@ -5,3 +5,5 @@ data/
 
 # Ignore exported ML models
 notebooks/*.joblib
+notebooks/*.ipynb
+
