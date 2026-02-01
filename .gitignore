@@ -7,3 +7,5 @@ data/
 notebooks/*.joblib
 notebooks/*.ipynb
 
+__pycache__/
+*.pyc
