@@ -1,5 +1,7 @@
 .env
 
-data
+# Ignore local dataset folder
+data/
 
-notebooks/linear_svc.joblib
+# Ignore exported ML models
+notebooks/*.joblib
