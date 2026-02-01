@@ -14,3 +14,11 @@ nltk
 regex
 
 jupyterlab
+
+# API serving (used by main.py)
+fastapi
+pydantic
+uvicorn[standard]
+
+# Model persistence (imported directly)
+joblib
