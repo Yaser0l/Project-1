@@ -1,5 +1,5 @@
 .env
 
-\\data
+data
 
-\\notebooks\\linear_svc.joblib
+notebooks/linear_svc.joblib
