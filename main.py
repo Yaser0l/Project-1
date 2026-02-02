@@ -3,7 +3,7 @@ import re
 import os
 import joblib
 import psycopg2
-import logging  # NEW: For professional logs
+import logging 
 from typing import List
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -15,7 +15,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.StreamHandler(sys.stdout) # This sends logs to your terminal
+        logging.StreamHandler(sys.stdout) # This sends logs to terminal
     ]
 )
 logger = logging.getLogger(__name__)
