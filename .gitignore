@@ -1,11 +1,6 @@
 .env
 
-# Ignore local dataset folder
-data/
-
-# Ignore exported ML models
 notebooks/*.joblib
-notebooks/*.ipynb
 
 __pycache__/
 *.pyc
