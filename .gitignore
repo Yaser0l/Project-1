@@ -4,3 +4,7 @@ notebooks/*.joblib
 
 __pycache__/
 *.pyc
+
+mlruns/
+mlflow_storage/
+mlflow_artifacts/

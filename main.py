@@ -4,7 +4,10 @@ import os
 import joblib
 import psycopg2
 import logging 
+import mlflow 
+import mlflow.sklearn 
 from typing import List
+from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from nltk.stem import WordNetLemmatizer
@@ -14,9 +17,7 @@ from dotenv import load_dotenv
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout) # This sends logs to terminal
-    ]
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ load_dotenv()
 API_MAX_INPUT = 100    
 CHUNKING_SIZE = 20     
 
+POSTGRES_URL = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DB')}"
+
 DB_CONFIG = {
     "dbname": os.getenv("POSTGRES_DB"),
     "user": os.getenv("POSTGRES_USER"),
@@ -34,7 +37,19 @@ DB_CONFIG = {
     "port": "5432"
 }
 
-# --- 2. PREPROCESSING & PIPELINE FIX ---
+# --- 2. MLFLOW INITIALIZATION ---
+mlflow.set_tracking_uri(POSTGRES_URL)
+mlflow.set_experiment("Genre_Classifier_TCC")
+
+# --- 3. INPUT MODELS (FIXED: Defined BEFORE the endpoint) ---
+class BookBatchInput(BaseModel):
+    """
+    Pydantic model to validate the incoming batch of texts.
+    Ensures the list contains between 1 and 100 items.
+    """
+    texts: List[str] = Field(..., min_length=1, max_length=API_MAX_INPUT)
+
+# --- 4. PREPROCESSING & PIPELINE FIX ---
 lemmatizer = WordNetLemmatizer()
 stop_words = set(['the', 'is', 'at', 'which', 'on']) 
 
@@ -57,16 +72,21 @@ import __main__
 __main__.pipeline_preprocess = pipeline_preprocess
 sys.modules['pipeline_preprocess'] = pipeline_preprocess 
 
-# --- 3. INITIALIZE API & MODEL ---
-app = FastAPI(title="Genre Classifier API - Logging Edition")
+# --- 5. INITIALIZE API & MODEL ---
+app = FastAPI(title="Genre Classifier API - Final Edition")
 base_path = os.path.dirname(__file__)
 model_path = os.path.join(base_path, "notebooks", "SVC_pipeline.joblib")
 model = joblib.load(model_path)
 
-class BookBatchInput(BaseModel):
-    texts: List[str] = Field(..., min_length=1, max_length=API_MAX_INPUT)
+# Log Model as an Artifact on startup
+try:
+    with mlflow.start_run(run_name="App_Startup_Artifact"):
+        mlflow.sklearn.log_model(sk_model=model, artifact_path="svc_model")
+        logger.info("✅ Artifact successfully created and stored in MLflow.")
+except Exception as e:
+    logger.warning(f"⚠️ Could not create artifact: {e}")
 
-# --- 4. DATABASE LOGIC ---
+# --- 6. DATABASE & CHUNKING HELPERS ---
 def save_prediction(text, genre, label_id):
     try:
         conn = psycopg2.connect(**DB_CONFIG)
@@ -88,52 +108,51 @@ def save_prediction(text, genre, label_id):
         cur.close()
         conn.close()
     except Exception as e:
-        logger.error(f"Database error while saving prediction: {e}")
+        logger.error(f"❌ Database error: {e}")
 
-# --- 5. CHUNKING HELPER ---
 def get_chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
-# --- 6. ENDPOINTS ---
+# --- 7. ENDPOINTS ---
 @app.post("/predict")
 def predict_genre(data: BookBatchInput):
     total_texts = len(data.texts)
-    logger.info(f"Received request with {total_texts} texts. Max input: {API_MAX_INPUT}")
+    logger.info(f"🚀 Received request with {total_texts} texts.")
     
-    try:
-        all_results = []
-        chunks = list(get_chunks(data.texts, CHUNKING_SIZE))
-        
-        for index, chunk in enumerate(chunks):
-            current_chunk_num = index + 1
-            logger.info(f"Processing chunk {current_chunk_num}/{len(chunks)} (Size: {len(chunk)})")
+    with mlflow.start_run(run_name=f"Predict_Batch_{datetime.now().strftime('%H%M%S')}"):
+        try:
+            all_results = []
+            fiction_count = 0
+            nonfiction_count = 0
             
-            # Predict the entire chunk
-            predictions = model.predict(chunk)
+            mlflow.log_param("batch_size", total_texts)
+            chunks = list(get_chunks(data.texts, CHUNKING_SIZE))
             
-            for i, text in enumerate(chunk):
-                pred_id = int(predictions[i])
-                genre = "Fiction" if pred_id == 1 else "Nonfiction"
+            for index, chunk in enumerate(chunks):
+                logger.info(f"📦 Processing chunk {index+1}/{len(chunks)}")
+                predictions = model.predict(chunk)
                 
-                # Save to Postgres
-                save_prediction(text, genre, pred_id)
-                
-                all_results.append({
-                    "prediction": genre,
-                    "label_id": pred_id
-                })
-            
-            logger.info(f"Successfully finished chunk {current_chunk_num}")
+                for i, text in enumerate(chunk):
+                    pred_id = int(predictions[i])
+                    genre = "Fiction" if pred_id == 1 else "Nonfiction"
+                    
+                    if pred_id == 1: fiction_count += 1
+                    else: nonfiction_count += 1
 
-        logger.info(f"Request completed. Total processed: {len(all_results)}")
-        
-        return {
-            "total_processed": len(all_results),
-            "chunks_handled": len(chunks),
-            "results": all_results
-        }
-        
-    except Exception as e:
-        logger.exception("A critical error occurred during processing")
-        raise HTTPException(status_code=500, detail="Internal processing error")
+                    save_prediction(text, genre, pred_id)
+                    all_results.append({"prediction": genre, "label_id": pred_id})
+            
+            mlflow.log_metric("fiction_count", fiction_count)
+            mlflow.log_metric("nonfiction_count", nonfiction_count)
+            
+            return {
+                "total_processed": len(all_results),
+                "chunks_handled": len(chunks),
+                "results": all_results
+            }
+            
+        except Exception as e:
+            mlflow.log_param("error", str(e))
+            logger.exception("A critical error occurred")
+            raise HTTPException(status_code=500, detail="Internal processing error")
