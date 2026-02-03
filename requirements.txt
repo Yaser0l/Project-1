@@ -13,8 +13,6 @@ scipy
 nltk
 regex
 
-jupyterlab
-
 # API serving (used by main.py)
 fastapi
 pydantic
