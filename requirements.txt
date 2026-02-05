@@ -13,10 +13,12 @@ scipy
 nltk
 regex
 
+# Training (used in notebooks / optional jobs)
+joblib
+
 # API serving (used by main.py)
 fastapi
 pydantic
 uvicorn[standard]
 
-# Model persistence (imported directly)
-joblib
+mlflow

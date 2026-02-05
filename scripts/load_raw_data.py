@@ -1,24 +1,28 @@
 from pathlib import Path
-import pandas as pd
-from sqlalchemy import create_engine, inspect
-from sqlalchemy import MetaData, Table
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 import os
+import pandas as pd
+from sqlalchemy import MetaData, Table, create_engine, inspect
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 # ==========================================
 # 1. NETWORK MAPPING (Connection String)
 # ==========================================
-# We use "localhost" because we are running this on Windows, outside the container.
+"""Load the raw Goodreads CSV into Postgres.
+
+Works both:
+- on Windows (DB host typically localhost)
+- in Docker Compose (DB host typically the service name: db)
+"""
 
 from dotenv import load_dotenv
 env_path = Path(__file__).resolve().parents[1] / ".env"  # project root/.env
 load_dotenv(dotenv_path=env_path)
 
-DB_HOST = "localhost"
+DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
 DB_NAME = os.getenv("POSTGRES_DB")
 DB_USER = os.getenv("POSTGRES_USER")
 DB_PASS = os.getenv("POSTGRES_PASSWORD")
-DB_PORT = "5432"
+DB_PORT = os.getenv("POSTGRES_PORT", "5432")
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 engine = create_engine(DATABASE_URL)
@@ -26,10 +30,10 @@ engine = create_engine(DATABASE_URL)
 # ==========================================
 # 2. FILE PATH MAPPING
 # ==========================================
-# 
-csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data\\goodreads_data.csv')
+project_root = Path(__file__).resolve().parents[1]
+csv_path = project_root / "data" / "goodreads_data.csv"
 
-if not os.path.exists(csv_path):
+if not csv_path.exists():
     print(f"❌ ERROR: File not found at: {csv_path}")
     exit()
 

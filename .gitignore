@@ -6,7 +6,9 @@ notebooks/*.db
 __pycache__/
 *.pyc
 
+mlartifacts/
 mlruns/
+
 mlflow_storage/
 mlflow_artifacts/
 mlartifacts/

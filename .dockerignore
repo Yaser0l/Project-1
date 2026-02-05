@@ -1,0 +1,29 @@
+# Ignore sensitive files
+.env
+
+# Ignore local data and notebook artifacts
+data/
+notebooks/
+*.ipynb
+*.joblib
+*.csv
+
+# Ignore MLflow local artifacts (can be huge)
+mlartifacts/
+
+# Ignore python cache
+__pycache__/
+*.pyc
+
+# Ignore local virtual environments
+.venv/
+venv/
+
+# Ignore git
+.git
+.gitignore
+
+# OS/editor noise
+.vscode/
+.DS_Store
+Thumbs.db
