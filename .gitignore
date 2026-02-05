@@ -1,0 +1,16 @@
+.env
+
+notebooks/*.joblib
+notebooks/*.db
+
+__pycache__/
+*.pyc
+
+mlartifacts/
+mlruns/
+
+mlflow_storage/
+mlflow_artifacts/
+mlartifacts/
+mlflow.db
+.DS_Store
