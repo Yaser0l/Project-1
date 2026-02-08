@@ -1,6 +1,5 @@
 .env
 
-notebooks/*.joblib
 notebooks/*.db
 
 __pycache__/
