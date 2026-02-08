@@ -27,7 +27,7 @@ Training is performed on your local machine to leverage local resources while lo
     POSTGRES_DB= YOUR DB NAME
     POSTGRES_HOST= YOUR HOSTNAME
     POSTGRES_PORT=5432
-    MLFLOW_TRACKING_URI=[http://34.67.228.231:5001](http://34.67.228.231:5001)
+    MLFLOW_TRACKING_URI= YOUR MLFLOW URI
     ```
     Note: make sure your .env is consistant with you notebook and scripts
 2.  **Run Training**: Execute your Jupyter Notebook or Python script. This will:
