@@ -201,8 +201,5 @@ def health() -> dict:
         "mlflow": {
             "tracking_uri": tracking_uri,
             "model_name": model_name,
-            "model_stage": model_stage,
-            "model_version": model_version,
-        },
-        "last_model_load_error": last_model_load_error,
+        }
     }
