@@ -38,8 +38,8 @@ Training is performed on your local machine to leverage local resources while lo
 ### 2. Model Serving (FastAPI)
 Once registered, the API (running on the VM) pulls the model directly from the internal MLflow service.
 
-* **Interactive API Docs**: `http://34.67.228.231:8001/docs`
-* **Health Check**: `http://34.67.228.231:8001/health`
+* **Interactive API Docs**: `http://YOUR VM IP:8001/docs`
+* **Health Check**: `http://YOUR VM IP:8001/health`
 
 ---
 
