@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 env_path = Path(__file__).resolve().parents[1] / ".env"  # project root/.env
 load_dotenv(dotenv_path=env_path)
 
-DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+DB_HOST = os.getenv("POSTGRES_HOST")
 DB_NAME = os.getenv("POSTGRES_DB")
 DB_USER = os.getenv("POSTGRES_USER")
 DB_PASS = os.getenv("POSTGRES_PASSWORD")

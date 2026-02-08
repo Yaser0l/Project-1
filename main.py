@@ -32,7 +32,7 @@ DB_CONFIG = {
     "dbname": os.getenv("POSTGRES_DB"),
     "user": os.getenv("POSTGRES_USER"),
     "password": os.getenv("POSTGRES_PASSWORD"),
-    "host": os.getenv("POSTGRES_HOST", "localhost"),
+    "host": os.getenv("POSTGRES_HOST", "db"),
     "port": os.getenv("POSTGRES_PORT", "5432"),
 }
 
@@ -191,7 +191,7 @@ def predict_genre(data: BookBatchInput):
 
 @app.get("/health")
 def health() -> dict:
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     model_name = os.getenv("MLFLOW_MODEL_NAME", "SVC_model")
     model_stage = os.getenv("MLFLOW_MODEL_STAGE")
     model_version = os.getenv("MLFLOW_MODEL_VERSION")
