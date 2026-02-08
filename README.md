@@ -53,10 +53,13 @@ Once registered, the API (running on the VM) pulls the model directly from the i
 
 ### Critical Environment Variables
 These are managed in the Coolify Dashboard to ensure secure internal communication:
-* `POSTGRES_USER= YOUR USERNAME
-   POSTGRES_PASSWORD= YOUR PASSWORD
-   POSTGRES_DB= YOUR DB NAME
-   MLFLOW_TRACKING_URI`: `http://mlflow:5000` (Internal Docker network).
+* `POSTGRES_USER= YOUR USERNAME`
+  
+* `POSTGRES_PASSWORD= YOUR PASSWORD`
+  
+* `POSTGRES_DB= YOUR DB NAME`
+  
+* `MLFLOW_TRACKING_URI=`: `http://mlflow:5000` (Internal Docker network).
 
 ---
 
