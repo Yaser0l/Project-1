@@ -79,7 +79,7 @@ services:
       # MLFLOW_MODEL_VERSION: "1"
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./mlartifacts:/mlartifacts:ro
     depends_on:
