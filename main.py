@@ -64,7 +64,7 @@ def _get_latest_model_version(client: MlflowClient, model_name: str) -> str:
 
 
 def load_model_from_mlflow() -> Optional[Any]:
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://34.67.228.231:5001")
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     mlflow.set_tracking_uri(tracking_uri)
 
     model_name = os.getenv("MLFLOW_MODEL_NAME", "SVC_model")
