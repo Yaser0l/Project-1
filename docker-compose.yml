@@ -51,7 +51,7 @@ services:
         "file:/mlartifacts",
       ]
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./mlartifacts:/mlartifacts
     depends_on:
