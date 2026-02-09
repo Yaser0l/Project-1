@@ -22,3 +22,6 @@ pydantic
 uvicorn[standard]
 
 mlflow
+
+celery
+redis
