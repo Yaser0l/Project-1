@@ -13,3 +13,5 @@ mlflow_artifacts/
 mlartifacts/
 mlflow.db
 .DS_Store
+
+locustfile.py
