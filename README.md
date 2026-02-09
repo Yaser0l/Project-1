@@ -38,8 +38,8 @@ Training is performed on your local machine to leverage local resources while lo
 ### 2. Model Serving (FastAPI)
 Once registered, the API (running on the VM) pulls the model directly from the internal MLflow service.
 
-* **Interactive API Docs**: `http://34.67.228.231:8001/docs`
-* **Health Check**: `http://34.67.228.231:8001/health`
+* **Interactive API Docs**: `http://YOUR VM IP:8001/docs`
+* **Health Check**: `http://YOUR VM IP:8001/health`
 
 ---
 
@@ -53,9 +53,13 @@ Once registered, the API (running on the VM) pulls the model directly from the i
 
 ### Critical Environment Variables
 These are managed in the Coolify Dashboard to ensure secure internal communication:
-* `MLFLOW_TRACKING_URI`: `http://mlflow:5000` (Internal Docker network).
-* `POSTGRES_HOST`: `db` (Service name).
-* `GUNICORN_CMD_ARGS`: `--forwarded-allow-ips='*'` (Allows public IP access to MLflow).
+* `POSTGRES_USER= YOUR USERNAME`
+  
+* `POSTGRES_PASSWORD= YOUR PASSWORD`
+  
+* `POSTGRES_DB= YOUR DB NAME`
+  
+* `MLFLOW_TRACKING_URI=`: `http://mlflow:5000` (Internal Docker network).
 
 ---
 
