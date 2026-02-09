@@ -1,6 +1,5 @@
 .env
 
-notebooks/*.joblib
 notebooks/*.db
 
 __pycache__/
@@ -14,3 +13,5 @@ mlflow_artifacts/
 mlartifacts/
 mlflow.db
 .DS_Store
+
+locustfile.py

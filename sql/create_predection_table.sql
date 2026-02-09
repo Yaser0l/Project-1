@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS genre_predictions (
     input_text  TEXT NOT NULL,
     prediction  TEXT NOT NULL,
     label_id    INTEGER NOT NULL,
+    task_id     TEXT,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -11,3 +12,6 @@ CREATE INDEX IF NOT EXISTS idx_genre_predictions_created_at
 
 CREATE INDEX IF NOT EXISTS idx_genre_predictions_label_id
     ON genre_predictions (label_id);
+
+CREATE INDEX IF NOT EXISTS idx_genre_predictions_task_id
+    ON genre_predictions (task_id);
